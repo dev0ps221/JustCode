@@ -2,10 +2,10 @@
 #Syntax
 
 #arithmetic operations ( brackets priority not made yet )
-// like you do in other languages (laughing...)
+.. like you do in other languages (laughing...)
 
 #affecting variables (actually working on that)
-// =V variablename value
+..=V variablename value
 
 #printing stuff(not yet implemented)
 
