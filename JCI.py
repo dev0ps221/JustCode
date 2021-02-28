@@ -4,9 +4,11 @@ from Required import *
 JCI = Interpreter()
 while(True):
     lexer = Lexer(input("JC>"))
-    tokens = lexer.Tokenize()
-    parser = Parser(tokens)
-    print(tokens)
+    tokens,errs = lexer.Tokenize()
+    if len(errs.show()) > 1:
+        print(errs.show()[0]) 
+    # parser = Parser(tokens)
+    # print(tokens)
     # ast = parser.Parse()
     # print(ast)
     # print(JCI.visit(ast))

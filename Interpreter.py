@@ -2,8 +2,7 @@
 
 class Pos():
     current = None
-
-    def set_pos(self,start=None,end=None):
+    def set_pos(self,start=None,end=None,file="<stdin>"):
         self.start = start
         self.end = end
 

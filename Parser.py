@@ -24,6 +24,12 @@ class Parser():
         return ret
 
     def Parse(self):
+
+        start = 0
+        end = 0
+        for tok in self.tokens:
+            start+=1
+        end = start
         return self.Expression()
 
     def Term(self):

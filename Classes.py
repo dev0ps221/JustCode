@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 import string
-
+from Error import *
 
 
 ##################################
@@ -121,6 +121,16 @@ class Position():
     def __repr__(self):
         return f'''|>Line {self.line}-|-Column {self.col}<|'''
 
+class Pos():
+    def __init__(self,start=None,end=None,line='None',file="<stdin>"):
+        self.file = None
+        self.set_pos(start,end,file)
+
+    def set_pos(self,start=None,end=None,file='null'):
+        self.start = start
+        self.end = end
+        self.file = self.file if file =='null' and self.file == None else file
+
 
 ##################################
 
@@ -129,10 +139,11 @@ class Position():
 class Token():
 
 
-    def __init__(self,type_,value):
+    def __init__(self,type_,value,start=None,end=None,line=None,file='<stdin>'):
+        if end == None : end = start
         self.type = type_
         self.value = value
-
+        self.pos = Pos(start,end,file)
     def __repr__(self):
         return f"{self.type}:{self.value}"
 
@@ -156,17 +167,18 @@ class Tokenizer():
         self.tokens = []
 
     def Tokenize(self,text):    
+        self.errs = ErrorResponse()
+        print(self.errs.show())
         self.pos = Position(text)
+        
         while self.pos.current != None:
-
-            
-
-            value = self.pos.current
+            if len(self.errs.show()) : break
+            value = self.pos.current    
             if value in ' \t':
                 self.pos.Next()
 
             elif self.Types.Retrieve(self.pos.current) != None:
-                self.tokens.append(Token(self.Types.Retrieve(self.pos.current).type,self.pos.current))
+                self.tokens.append(Token(self.Types.Retrieve(self.pos.current).type,self.pos.current,self.pos.idx,None,self.pos.line,self.pos.file))
                 self.pos.Next()
 
             elif self.KeyWords.Signs.__getattr__(self.pos.current) != None:
@@ -176,6 +188,7 @@ class Tokenizer():
 
                 last = self.pos.current
                 stop = 0
+                start = self.pos.idx
                 while self.pos.current!=None:
                     if stop : break
                     if self.pos.current not in " \n\t":
@@ -183,30 +196,15 @@ class Tokenizer():
                         self.pos.Next()
                     else :
                         stop = 1
+                
+                end = self.pos.idx
                 if self.KeyWords.Retrieve(value) != None:
                     type_ = self.KeyWords.Retrieve(value).type
                     self.tokens.append(Token(type_,value))
                     self.pos.Next()
                 else:
-                    self.tokens.append(Token(type_,KW))
-                    value = last
-                    self.pos.text = self.pos.text[:self.pos.idx]+" "+self.pos.text[self.pos.idx:]
-                    hasRef = self.getRefNameAndType(last)
-                    if hasRef != None:
-                        type_,name = hasRef
-                        if type_ == "INT":
-                            type_,name,value = self.Numerize(type_,name,value)
-                            self.tokens.append(Token(type_,value))
-                        elif type_ == "NAME":
-                            type_,name,value = self.Namify(type_,name,value)
-                            self.tokens.append(Token(type_,value))
-                        else:
-                            self.tokens.append(Token(type_,value))
-                        hasRef = 0
-                    else:
-                        self.tokens.append(value)
-
-                    
+                    errTok = Token(type_,value,start,end,self.pos.line,self.pos.file)
+                    self.errs.register("JCKeyWordError",errTok.pos,"Undefined KEYWORD",errTok)
                 
             else:
                 hasRef = self.getRefNameAndType(self.pos.current)
@@ -214,19 +212,19 @@ class Tokenizer():
                     type_,name = hasRef
                     if type_ == "INT":
                         type_,name,value = self.Numerize(type_,name,value)
-                        self.tokens.append(Token(type_,value))
+                        self.tokens.append(Token(type_,value,self.pos.idx,None,self.pos.line,self.pos.file))
                     elif type_ == "NAME":
                         type_,name,value = self.Namify(type_,name,value)
-                        self.tokens.append(Token(type_,value))
+                        self.tokens.append(Token(type_,value,self.pos.idx,None,self.pos.line,self.pos.file))
                     else:
-                        self.tokens.append(Token(type_,value))
+                        self.tokens.append(Token(type_,value,self.pos.idx,None,self.pos.line,self.pos.file))
                         self.pos.Next()
                     hasRef = 0
                 else:
                     self.tokens.append(value)
                     self.pos.Next()
-
-        return self.tokens
+        errs = self.errs
+        return (self.tokens,errs)
     
     def Numerize(self,type_,name,value):
         self.pos.Next()
