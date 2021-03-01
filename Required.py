@@ -8,10 +8,6 @@ stack = []
 
 
 def shell (JCI):
-
-    def salut():
-        print("salut")
-
     def start():
         while(True):
             lexer = Lexer(input("JC>"))
@@ -19,8 +15,6 @@ def shell (JCI):
             if len(errs.show()) != 0:
                 print(errs.getLast())
             else:
-                # pass
-                
                 Set = []
                 for token in tokens:
                     if token.type == "ENDTOKEN":
@@ -28,10 +22,19 @@ def shell (JCI):
                         Set = []
                     elif token.type == "VarOp":
                         if token.operation == "setVal":
-                            if token.value.type == 'NAME':
-
-
-                        Set.append(token)
+                            variable = Variable()
+                            if type(token.value) == str:
+                                val = token.value
+                                type_ = token.value
+                            else :
+                                type_ = token.value.type
+                                val = token.value.value
+                            variable.setAttr("type",type_)
+                            variable.setAttr("name",token.name)
+                            variable.setAttr("value",val)
+                            variables[token.name] = variable
+                        else:
+                            Set.append(token)
                     else:
                         Set.append(token)
                 # parser = Parser(tokens)
@@ -44,3 +47,5 @@ def shell (JCI):
     return {
         "start":start
     } 
+
+    
