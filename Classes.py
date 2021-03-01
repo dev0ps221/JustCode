@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 import string
 from Error import *
-
+from Operands import VarOp
 
 ##################################
 
@@ -171,13 +171,60 @@ class Tokenizer():
         
     def ConfirmTokens(self):
         tokens = []
+
+        pos = 0
+        group = []
+        start = -1
+        counter = 0
+        aKeyword = 0
+        fillType = ""
         for token in self.tokens:
             tok = token
             for Kw in self.KeyWords:
                 if Kw.value == token.value:
+                    aKeyword = 1     
                     if token.value == "=V":
-                        pass
-            tokens.append(tok)
+                        start = pos
+                        fillType = "var"
+                        pos+=1
+                        break
+                    
+            if start != -1:
+                if fillType == "var":
+                    if counter <= 1 :
+                        if token.type == "NAME":
+                            group.append(self.tokens[start+counter+1])
+                            counter+=1
+                            if counter > 1 :
+                                name,value = group
+                                tok = VarOp(name,value,"VarOp","setVal")
+                                counter = 0
+                                start = -1
+                                pos+=1
+                        else:
+                            counter+1
+                            if counter == 1:
+                                name,value = group[0],"NEXTOP"
+                                tok = VarOp(name,value,"VarOp","setVal")
+                                tokens.append(tok)
+                                tok = token
+                                counter = 0
+                                start = -1
+                    else:
+                        start = 0
+                        counter = 0
+                        if token.type == "NAME":
+                            self.errs.register("JCSyntaxError",token.pos,token,"Unexpected Token")
+                        else:
+                            tok = token
+                            tokens.append(tok)
+
+            pos+=1
+            if not aKeyword:
+                if start == -1 : tokens.append(tok)
+            else:
+                aKeyword = 0
+
         self.tokens = tokens
         return (self.tokens,self.errs)
 

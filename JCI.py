@@ -10,9 +10,10 @@ if len(argv) > 1:
         if len(errs.show()) != 0:
             print(errs.getLast())
         else:
-            # pass
+            
             parser = Parser(tokens)
             # print(tokens)
+            
             ast = parser.Parse()
             # print(ast)
             Num = (JCI.visit(ast))

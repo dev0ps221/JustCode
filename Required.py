@@ -1,6 +1,11 @@
 from Lexer import Lexer
 from Parser import Parser
 from Interpreter import Interpreter
+from Variables import *
+variables = {}
+functions = {}
+stack = []
+
 
 def shell (JCI):
 
@@ -15,12 +20,26 @@ def shell (JCI):
                 print(errs.getLast())
             else:
                 # pass
-                parser = Parser(tokens)
+                
+                Set = []
+                for token in tokens:
+                    if token.type == "ENDTOKEN":
+                        stack.append(Set)
+                        Set = []
+                    elif token.type == "VarOp":
+                        if token.operation == "setVal":
+                            if token.value.type == 'NAME':
+
+
+                        Set.append(token)
+                    else:
+                        Set.append(token)
+                # parser = Parser(tokens)
                 # print(tokens)
-                ast = parser.Parse()
+                # ast = parser.Parse()
                 # print(ast)
-                Num = (JCI.visit(ast))
-                print(Num.value)
+                # Num = (JCI.visit(ast))
+                # print(Num.value)
                 # (JCI.visit(ast))
     return {
         "start":start
