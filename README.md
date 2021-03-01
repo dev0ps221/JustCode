@@ -11,3 +11,5 @@
 
 
 #I know i should start by error handling but dw, it'll not be messed up, i'm shaping things my way
+
+###PROGRAMMATION WOLOF BANGUI NIEUW SAMA GAAYI BOULEIN WAX DARA ;)
