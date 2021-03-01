@@ -123,12 +123,14 @@ class Position():
 
 class Pos():
     def __init__(self,start=None,end=None,line='None',file="<stdin>"):
-        self.file = None
-        self.set_pos(start,end,file)
+        self.file = file
+        self.line = line
+        self.set_pos(start,end,line,file)
 
-    def set_pos(self,start=None,end=None,file='null'):
+    def set_pos(self,start=None,end=None,line='null',file='null'):
         self.start = start
         self.end = end
+        self.line = self.line if line =='null' and self.line == None else line
         self.file = self.file if file =='null' and self.file == None else file
 
 
@@ -165,22 +167,34 @@ class Tokenizer():
         self.KeyWords = KeyWords
         self.refTypes = ['INT','01234564789'],['NAME',string.ascii_letters]
         self.tokens = []
+        self.errs = ErrorResponse()
+        
+    def ConfirmTokens(self):
+        tokens = []
+        for token in self.tokens:
+            tok = token
+            for Kw in self.KeyWords:
+                if Kw.value == token.value:
+                    if token.value == "=V":
+                        pass
+            tokens.append(tok)
+        self.tokens = tokens
+        return (self.tokens,self.errs)
 
     def Tokenize(self,text):    
-        self.errs = ErrorResponse()
-        print(self.errs.show())
+        self.errs.flush()
         self.pos = Position(text)
         
         while self.pos.current != None:
-            if len(self.errs.show()) : break
             value = self.pos.current    
             if value in ' \t':
                 self.pos.Next()
-
+            elif value in ';\n' :
+                self.tokens.append(Token('ENDTOKEN',"STOP",self.pos.idx,None,self.pos.line,self.pos.file))
+                self.pos.Next()
             elif self.Types.Retrieve(self.pos.current) != None:
                 self.tokens.append(Token(self.Types.Retrieve(self.pos.current).type,self.pos.current,self.pos.idx,None,self.pos.line,self.pos.file))
                 self.pos.Next()
-
             elif self.KeyWords.Signs.__getattr__(self.pos.current) != None:
                 KW = self.KeyWords.Signs.__getattr__(self.pos.current) 
                 type_ = KW.type
@@ -203,9 +217,11 @@ class Tokenizer():
                     self.tokens.append(Token(type_,value))
                     self.pos.Next()
                 else:
-                    errTok = Token(type_,value,start,end,self.pos.line,self.pos.file)
-                    self.errs.register("JCKeyWordError",errTok.pos,"Undefined KEYWORD",errTok)
-                
+                    if value not in " ;\n\t":
+                        errTok = Token(type_,value,start,end,self.pos.line,self.pos.file)
+                    else:
+                        errTok = Token('ENDTOKEN',"STOP",self.pos.idx,None,self.pos.line,self.pos.file)
+                    self.errs.register("JCKeyWordError",errTok.pos,errTok,"Undefined KEYWORD")
             else:
                 hasRef = self.getRefNameAndType(self.pos.current)
                 if hasRef != None:
@@ -223,8 +239,9 @@ class Tokenizer():
                 else:
                     self.tokens.append(value)
                     self.pos.Next()
-        errs = self.errs
-        return (self.tokens,errs)
+        
+        self.tokens.append(Token('ENDTOKEN',"STOP",self.pos.idx,None,self.pos.line,self.pos.file))
+        return self.ConfirmTokens()
     
     def Numerize(self,type_,name,value):
         self.pos.Next()

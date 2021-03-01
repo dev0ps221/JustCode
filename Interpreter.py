@@ -1,3 +1,12 @@
+
+
+
+
+
+
+
+
+
 #!/usr/bin/env python3
 
 class Pos():
@@ -15,6 +24,7 @@ class Number():
         self.pos = Pos()
         self.pos.set_pos()
         self.pos.current = self.pos.start
+
 
     def plus(self,other):
         if isinstance(other,Number):
@@ -75,7 +85,7 @@ class Interpreter():
         if o.value == '+':
             result = n
         if o.value == '-':
-            result = n.fois(-1)
+            result = n.fois(Number(-1))
 
         return result
         
@@ -83,7 +93,8 @@ class Interpreter():
         return (node)
 
     def CheckNumberNode(self,node):
-        return Number(node.value)
+        val = int(node.value) if (node.type) == 'INT' else float(node.value)
+        return Number(val)
 
     def CheckCHR(self,node):
         return (node)
