@@ -240,8 +240,19 @@ class Tokenizer():
                 self.tokens.append(Token('ENDTOKEN',"STOP",self.pos.idx,None,self.pos.line,self.pos.file))
                 self.pos.Next()
             elif self.Types.Retrieve(self.pos.current) != None:
-                self.tokens.append(Token(self.Types.Retrieve(self.pos.current).type,self.pos.current,self.pos.idx,None,self.pos.line,self.pos.file))
-                self.pos.Next()
+                crrnt = self.Types.Retrieve(self.pos.current)
+                if crrnt.type == "TEXT_DBQUOTE":
+                    tok = self.pos.current
+                    start = self.pos.idx
+                    type_,name,value = self.Stringify("STRING",value,value)
+                    if self.pos.current == None:
+                        errTok = Token(type_,value,start,self.pos.idx,self.pos.line,self.pos.file)
+                        self.errs.register("JCSyntaxError",errTok.pos,errTok,"expecting '\"' after expression at")
+                    else:
+                        value += self.pos.current
+                        end = self.pos.idx
+                        self.tokens.append(Token(type_,value,start,end,self.pos.line,self.pos.file))
+                        self.pos.Next()
             elif self.KeyWords.Signs.__getattr__(self.pos.current) != None:
                 KW = self.KeyWords.Signs.__getattr__(self.pos.current) 
                 type_ = KW.type
@@ -338,6 +349,16 @@ class Tokenizer():
             else:
                 stop = 1
                 break
+        return(type_,name,value)
+
+    def Stringify(self,type_,name,value):
+        self.pos.Next()
+        stop = 0
+        while self.pos.current != None and self.pos.current != '"':
+            
+            value+=self.pos.current
+            self.pos.Next()
+            
         return(type_,name,value)
 
 ##################################

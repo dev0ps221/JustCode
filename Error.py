@@ -10,7 +10,7 @@ class JCError():
         self.cause = cause
 
     def __repr__(self):
-        return f'{self.type}:{self.message} at {self.pos.line}>>{self.pos.start} : {self.cause.value}'
+        return f'{self.type}:{self.message} -- at {self.pos.line}>>{self.pos.start} : {self.cause.value}'
 
     
 class JCSyntaxError(JCError):

@@ -21,6 +21,7 @@ def shell (JCI):
                         stack.append(Set)
                         Set = []
                     elif token.type == "VarOp":
+                        Set.append(token)
                         if token.operation == "setVal":
                             variable = Variable()
                             if type(token.value) == str:
@@ -29,14 +30,16 @@ def shell (JCI):
                             else :
                                 type_ = token.value.type
                                 val = token.value.value
+                                Set.pop()
                             variable.setAttr("type",type_)
                             variable.setAttr("name",token.name)
                             variable.setAttr("value",val)
                             variables[token.name] = variable
-                        else:
-                            Set.append(token)
                     else:
                         Set.append(token)
+                print("variables =>",variables)
+                for Set in stack:
+                    print("stack elem =>",Set)
                 # parser = Parser(tokens)
                 # print(tokens)
                 # ast = parser.Parse()
@@ -48,4 +51,3 @@ def shell (JCI):
         "start":start
     } 
 
-    
