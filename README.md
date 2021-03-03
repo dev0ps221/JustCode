@@ -1,5 +1,7 @@
 # JustCode
-#Syntax
+
+
+
 
 
 #Run code
@@ -8,6 +10,14 @@
 
 #arithmetic operations ( brackets priority not made yet )
 ## like you do in other languages (laughing...)
+
+
+
+
+
+
+#Syntax
+
 
 
 #affecting variables (90% working)
