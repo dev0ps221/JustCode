@@ -24,7 +24,7 @@ class JCKeywordError(JCError):
         self.type = "JCSyntaxError"
 
     def __repr__(self):
-        return f'{self.type}:{self.message}\n\t<at column {self.pos.start} in {self.pos.file} >\n\tin line {self.pos.line} :\n\tat ={self.cause.value}'
+        return f'{self.type}:{self.message}\n\t<at line n*{self.pos.line}  column {self.pos.start} in {self.pos.file} >\n\tin line {self.pos.line} :\n\tat ={self.cause.value}'
 
 
 TErrs = {

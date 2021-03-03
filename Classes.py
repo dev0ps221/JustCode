@@ -149,7 +149,7 @@ class Token():
         if end == None : end = start
         self.type = type_
         self.value = value
-        self.pos = Pos(start,end,file)
+        self.pos = Pos(start,end,line,file)
     def __repr__(self):
         return f"{self.type}:{self.value}"
 
@@ -175,7 +175,8 @@ class Tokenizer():
         
     def ConfirmTokens(self):
         tokens = []
-
+        stop = 0
+        n = 0
         pos = 0
         group = []
         start = -1
@@ -185,14 +186,25 @@ class Tokenizer():
         for token in self.tokens:
             tok = token
             for Kw in self.KeyWords:
-                if Kw.value == token.value:
+                if Kw.value.split('\n')[0] == token.value:
                     aKeyword = 1     
                     if token.value == "=V":
                         start = pos
                         fillType = "var"
                         pos+=1
                         break
-                    
+
+                    if token.value == "=F":
+                        start = pos
+                        fillType = "func"
+                        name = ""
+                        mot=""
+                        arguments = []
+                        StackBuff = []
+                        foundName = 0
+                        pos+=1
+                        break
+                
             if start != -1:
                 if fillType == "var":
                     if counter <= 1 :
@@ -224,11 +236,51 @@ class Tokenizer():
                             tok = token
                             tokens.append(tok)
 
+                if fillType == "func":
+                    n+=1
+                    while n < len(self.tokens) and self.tokens[n] != None and self.tokens[n].value not in "".join([Kw.value.split('\n')[0] for Kw in self.KeyWords]):
+                        if not foundName:
+                            name = self.tokens[n]
+                            foundName = 1
+                            n+=1
+                            stop = 1
+                        else:
+                        
+                            if n < len(self.tokens) and self.tokens[n] != None:
+                                while n < len(self.tokens) and self.tokens[n] != None and self.tokens[n].value not in ".=START":
+                                    arg = self.tokens[n]
+                                    arguments.append(arg)
+                                    n+=1
+                                    counter+1
+                            
+                    if n < len(self.tokens) and self.tokens[n] != None:
+                        if self.tokens[n].value in ".=START":
+                            while n < len(self.tokens) and self.tokens[n] != None and self.tokens[n].value not in "=.END":  
+                                if self.tokens[n] in "; \n\t":
+                                    mot = StackBuff.append(self.tokens[n]) 
+                                    print(mot)
+                                    n+1
+                                mot+= self.tokenss[n]
+                                n+=1
+                                counter+1
+                                stop = 1
+                            # print(StackBuff)
+                            # if n < len(self.tokens) and self.tokens[n] != None:
+                            #     print(self.tokens[n])
+                            # else:
+                            #     print('diap amna deh')
+
+
+            if stop :
+                stop = 0
+                continue
+
             pos+=1
             if not aKeyword:
                 if start == -1 : tokens.append(tok)
             else:
                 aKeyword = 0
+            n+=1
 
         self.tokens = tokens
         return (self.tokens,self.errs)
