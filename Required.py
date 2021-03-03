@@ -1,10 +1,14 @@
 from Operands import *
 from Lexer import Lexer
+from Classes import Token
 from Parser import Parser
 from Interpreter import Interpreter
 from Variables import *
+from Functions import *
 variables = {}
-functions = {}
+functions = {
+    "show":Function("show",[FunctionArg("data","buff")],[Token("NAME","print"),Token("REF","data"),Token("ENDTOKEN","END")])
+}
 stack = []
 
 
@@ -26,21 +30,31 @@ def shell (JCI):
                         
                     else:
                         if token.type == "NAME":
+                            found = 0
                             for variable in variables:
+                                
                                 if variables[variable].name == token.value:
+                                    found = 1
                                     token = variables[variable]
-                                else:
-                                    print(token.value)
+                            
+                            for function in functions:
+                                if functions[function].name == token.value:
+                                    token = functions[function]
+                            
+                            found = 0
                         Set.append(token)
 
                     t+=1
                 for Set in stack:
                     action = None
                     concerned = None
+                    actual = 0
+                    limit = 0
                     n = 0
+                    passYourWay = 0
                     for elem in Set :
+                        # print("setelem ", elem)
                         if action !=  None:
-                            print(type(Set[n]))
                             parser = Parser(Set[n:])
                             ast,pos = parser.Parse()
                             if action  == "setVal":
@@ -58,8 +72,33 @@ def shell (JCI):
                                 action = elem.operation
                                 concerned = elem
                             else:
-                                if type(elem) == Variable:
-                                    print(elem.value)
+                                if not passYourWay:
+                                    if type(elem) == Variable:
+                                        print(elem.value)
+                                        pass
+                                    if type(elem) == Function:
+                                        if len(elem.arguments) > 0 :
+                                            args = []
+                                            actual = n
+                                            while n < len(Set) and Set[n] != None:
+                                                args.append(Set[n])
+                                                n+=1
+                                            limit = n
+                                        if len(elem.arguments) > 0 :
+                                            RunFunction(elem,args)
+                                            passYourWay = 1
+                                        else:
+                                            RunFunction(elem)
+                        if passYourWay:
+                            # print(actual)
+                            # print(limit)
+                            if actual < limit :
+                                actual+=1
+                            else:
+                                passYourWay = 0
+                                actual = 0
+                                limit = 0
+                            continue
                         n+=1
             stack = []
             Set = []

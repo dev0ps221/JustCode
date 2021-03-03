@@ -19,15 +19,6 @@ class TexType():
     def __repr__(self):
         return f"{self.value}"
 
-
-class KeyWord(TexType):
-    def __init__(self,type_,value):
-        super().__init__(type,value)
-        type_="TEXT_KW"
-        self.type = type_
-        self.value = value
-
-
 class TexTypes():
 
     def __init__(self):
@@ -70,10 +61,12 @@ class TexTypes():
                 break
         return ret
 
+
 class KWSign(TexType):
     def __init__(self,type_,value):
         super().__init__(type_,value)
         self.type = "KWSIGN"
+
 
 class KWSigns(TexTypes):
     def __init__(self):
@@ -82,6 +75,14 @@ class KWSigns(TexTypes):
     def Append(self,value):
         type_,value = ("KWSIGN",value)
         self.buffer.append(KWSign(type_,value))
+
+
+class KeyWord(TexType):
+    def __init__(self,type_,value):
+        super().__init__(type,value)
+        type_="TEXT_KW"
+        self.type = type_
+        self.value = value
 
 
 class KeyWords(TexTypes):
@@ -94,6 +95,23 @@ class KeyWords(TexTypes):
         type_,value = typeInfs
         self.buffer.append(KeyWord(type_,value))
 
+
+class StackBuffer(TexType):
+    
+    def __init__(self,value=[],pos=None):
+        super().__init__(self,"STACKBUFF",value)
+        self.value = value
+        self.init(self)
+        self.pos = pos
+
+    def Append(self,value):
+            self.buffer.append(value)
+    
+    def Pop(self):
+        self.buffer.pop()
+
+    def init(self):
+        self.buffer = self.value
 
 ##################################
 
