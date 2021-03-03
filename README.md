@@ -41,9 +41,22 @@
 
 
 
+#declaring functions (50% working)
 
 
-#printing stuff(actuallly working on that)
+## =F functionname argument .=
+
+  #instuctions
+
+=.
+
+
+
+
+
+#Hello World Example
+
+show "Hello World"
 
 
 
