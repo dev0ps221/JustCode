@@ -19,11 +19,12 @@ class Pos():
 
 class Number():
 
-    def __init__(self,value):
-        self.value = value
+    def __init__(self,value,type_="INT"):
+        self.value = int(value) if type_ == "INT" else value
         self.pos = Pos()
         self.pos.set_pos()
         self.pos.current = self.pos.start
+        self.type = type_
 
 
     def plus(self,other):
@@ -93,8 +94,8 @@ class Interpreter():
         return (node)
 
     def CheckNumberNode(self,node):
-        val = int(node.value) if (node.type) == 'INT' else float(node.value)
-        return Number(val)
+        val = int(node.value) if (node.valtype) == 'INT' else float(node.value)
+        return Number(val,node.valtype)
 
     def CheckCHR(self,node):
         return (node)

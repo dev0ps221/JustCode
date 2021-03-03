@@ -134,6 +134,10 @@ class Pos():
         self.file = self.file if file =='null' and self.file == None else file
 
 
+    def __repr__(self):
+        return f'''|>Line {self.line}-|-Column {self.start}-{self.end}<|'''
+
+
 ##################################
 
   # $$$$$$        $%%%% ##  #    #
@@ -197,7 +201,8 @@ class Tokenizer():
                             counter+=1
                             if counter > 1 :
                                 name,value = group
-                                tok = VarOp(name,value,"VarOp","setVal")
+                                tok.pos.start = start
+                                tok = VarOp(name,value,"VarOp","setVal",token.pos)
                                 counter = 0
                                 start = -1
                                 pos+=1
@@ -205,7 +210,7 @@ class Tokenizer():
                             counter+1
                             if counter == 1:
                                 name,value = group[0],"NEXTOP"
-                                tok = VarOp(name,value,"VarOp","setVal")
+                                tok = VarOp(name,value,"VarOp","setVal",group[0].pos)
                                 tokens.append(tok)
                                 tok = token
                                 counter = 0
@@ -253,6 +258,9 @@ class Tokenizer():
                         end = self.pos.idx
                         self.tokens.append(Token(type_,value,start,end,self.pos.line,self.pos.file))
                         self.pos.Next()
+                else:
+                    self.tokens.append(Token(crrnt.type,self.pos.current,self.pos.idx,None,self.pos.line,self.pos.file))
+                    self.pos.Next()
             elif self.KeyWords.Signs.__getattr__(self.pos.current) != None:
                 KW = self.KeyWords.Signs.__getattr__(self.pos.current) 
                 type_ = KW.type
@@ -341,14 +349,14 @@ class Tokenizer():
     def Namify(self,type_,name,value):
         self.pos.Next()
         stop = 0
-        while self.pos.current != None:
+        while self.pos.current != None and self.pos.current not in "\n\t ;\"":
             if stop : break
-            if self.pos.current in self.refTypes[1][1]:
-                value+=self.pos.current
-                self.pos.Next()
-            else:
-                stop = 1
-                break
+            # if self.pos.curren  in self.refTypes[1][1]:
+            value+=self.pos.current
+            self.pos.Next()
+            # else:
+            #     stop = 1
+            #     break
         return(type_,name,value)
 
     def Stringify(self,type_,name,value):
@@ -370,3 +378,4 @@ class NumberNode(TexType):
     def __init__(self,type_,value):
         super().__init__(type_,value)
         self.type = "NUMBERNODE"
+        self.valtype = type_

@@ -17,4 +17,4 @@ class Variable():
             self.value = value
 
     def __repr__(self):
-        return f"{''} variable {self.name} at {hex(id(self))}"
+        return f"{'=V'} :{self.type} >-=<> {self.value} at {hex(id(self))}"
