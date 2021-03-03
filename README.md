@@ -46,9 +46,9 @@
 
 ## =F functionname argument .=
 
-  #instuctions
+##  #instuctions
 
-=.
+## =.
 
 
 
